@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YAML to Properties Converter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-1: #f5f7ff;
+            --bg-2: #e9fff7;
+            --ink: #17202a;
+            --muted: #5a6674;
+            --card: rgba(255, 255, 255, 0.7);
+            --line: rgba(23, 32, 42, 0.12);
+            --accent: #0f9d7a;
+            --accent-2: #1463ff;
+            --shadow: 0 24px 48px rgba(23, 32, 42, 0.14);
+            --radius-xl: 22px;
+            --radius-md: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Space Grotesk", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(90rem 45rem at -10% -20%, #d9e4ff 0%, transparent 55%),
+                radial-gradient(85rem 50rem at 115% 120%, #c6fbe7 0%, transparent 58%),
+                linear-gradient(140deg, var(--bg-1), var(--bg-2));
+            padding: 24px;
+        }
+
+        .shell {
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: rise 500ms ease;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(1.45rem, 2vw + 0.9rem, 2.4rem);
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 0.98rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .panel {
+            backdrop-filter: blur(10px);
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            min-height: 68vh;
+        }
+
+        .panel-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .panel h2 {
+            margin: 0;
+            font-size: 1.02rem;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .tag {
+            font-size: 0.78rem;
+            color: var(--muted);
+            border: 1px solid var(--line);
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+
+        textarea {
+            width: 100%;
+            flex: 1;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.8);
+            padding: 14px;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            resize: vertical;
+            min-height: 360px;
+            color: #112029;
+        }
+
+        textarea:focus {
+            outline: 2px solid rgba(20, 99, 255, 0.24);
+            border-color: rgba(20, 99, 255, 0.45);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: 0;
+            border-radius: 11px;
+            padding: 10px 14px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 140ms ease, filter 140ms ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            filter: brightness(0.98);
+        }
+
+        .convert {
+            color: #fff;
+            background: linear-gradient(120deg, var(--accent), var(--accent-2));
+        }
+
+        .ghost {
+            color: #24313f;
+            background: rgba(255, 255, 255, 0.65);
+            border: 1px solid var(--line);
+        }
+
+        .status {
+            margin-top: 10px;
+            min-height: 1.2rem;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .status.error {
+            color: #c0262d;
+        }
+
+        .status.ok {
+            color: #0f7f5d;
+        }
+
+        @media (max-width: 900px) {
+            body {
+                padding: 14px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .panel {
+                min-height: 48vh;
+            }
+        }
+
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <div class="header">
+        <div>
+            <h1>YAML to Properties</h1>
+            <p class="subtitle">Paste YAML, convert via API, copy the properties output.</p>
+        </div>
+        <span class="tag">POST /api/yaml/to-properties</span>
+    </div>
+
+    <div class="grid">
+        <section class="panel">
+            <div class="panel-head">
+                <h2>YAML Input</h2>
+                <span class="tag">text/plain</span>
+            </div>
+            <textarea id="yamlInput" spellcheck="false" placeholder="server:
+  port: 8080
+spring:
+  application:
+    name: demo"></textarea>
+            <div class="actions">
+                <button id="convertBtn" class="convert" type="button">Convert</button>
+                <button id="clearBtn" class="ghost" type="button">Clear</button>
+            </div>
+            <div id="status" class="status"></div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <h2>Properties Output</h2>
+                <span class="tag">text/plain</span>
+            </div>
+            <textarea id="propertiesOutput" spellcheck="false" readonly placeholder="Converted properties will appear here"></textarea>
+            <div class="actions">
+                <button id="copyBtn" class="ghost" type="button">Copy Output</button>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script src="/app.js" defer></script>
+</body>
+</html>
