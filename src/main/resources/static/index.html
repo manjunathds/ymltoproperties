@@ -135,6 +135,7 @@
             border: 0;
             border-radius: 11px;
             padding: 10px 14px;
+            width: 140px;
             font-family: inherit;
             font-weight: 600;
             cursor: pointer;
@@ -219,11 +220,11 @@
 spring:
   application:
     name: demo"></textarea>
+            <div id="status" class="status"></div>
             <div class="actions">
                 <button id="convertBtn" class="convert" type="button">Convert</button>
                 <button id="clearBtn" class="ghost" type="button">Clear</button>
             </div>
-            <div id="status" class="status"></div>
         </section>
 
         <section class="panel">
@@ -232,6 +233,7 @@ spring:
                 <span class="tag">text/plain</span>
             </div>
             <textarea id="propertiesOutput" spellcheck="false" readonly placeholder="Converted properties will appear here"></textarea>
+            <div class="status" aria-hidden="true"></div>
             <div class="actions">
                 <button id="copyBtn" class="ghost" type="button">Copy Output</button>
             </div>
