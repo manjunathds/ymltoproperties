@@ -6,6 +6,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,6 +31,8 @@ class YamlToPropertiesControllerTest {
                 """;
 
         mockMvc.perform(post("/api/yaml/to-properties")
+                        .with(csrf())
+                        .header("Origin", "http://localhost")
                         .contentType(MediaType.TEXT_PLAIN)
                         .accept(MediaType.TEXT_PLAIN)
                         .content(yaml))
@@ -53,6 +56,8 @@ class YamlToPropertiesControllerTest {
                 """;
 
         mockMvc.perform(post("/api/yaml/to-properties")
+                        .with(csrf())
+                        .header("Origin", "http://localhost")
                         .contentType(MediaType.TEXT_PLAIN)
                         .accept(MediaType.TEXT_PLAIN)
                         .content(yaml))
@@ -76,7 +81,9 @@ class YamlToPropertiesControllerTest {
                     - qa
                 """;
 
-                mockMvc.perform(post("/api/yaml/to-properties")
+        mockMvc.perform(post("/api/yaml/to-properties")
+                        .with(csrf())
+                        .header("Origin", "http://localhost")
                         .contentType(MediaType.TEXT_PLAIN)
                         .accept(MediaType.TEXT_PLAIN)
                         .content(yaml))

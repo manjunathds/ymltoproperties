@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -21,10 +22,12 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                            @Value("${app.security.require-https:false}") boolean requireHttps) throws Exception {
+                                            @Value("${app.security.require-https:false}") boolean requireHttps,
+                                            @Value("${app.security.rate-limit.max-requests:30}") int maxRequests,
+                                            @Value("${app.security.rate-limit.window-seconds:60}") int windowSeconds) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .headers(headers -> headers
                         .contentSecurityPolicy(csp -> csp.policyDirectives(
                                 "default-src 'self'; " +
@@ -47,6 +50,9 @@ public class SecurityConfig {
         if (requireHttps) {
             http.addFilterBefore(new HttpsRedirectFilter(), AuthorizationFilter.class);
         }
+
+        http.addFilterBefore(new SameOriginApiFilter(), AuthorizationFilter.class);
+        http.addFilterBefore(new ApiRateLimitFilter(maxRequests, windowSeconds), AuthorizationFilter.class);
 
         return http.build();
     }
