@@ -5,7 +5,7 @@ const clearBtn = document.getElementById("clearBtn");
 const copyBtn = document.getElementById("copyBtn");
 const status = document.getElementById("status");
 
-const REQUEST_STATIC_KEY = "change-this-static-key";
+const REQUEST_STATIC_KEY = "YmlProp2026StaticKey9f3b7c1d5a2e8f4b";
 const AES_GCM_IV_LENGTH = 12;
 const PBKDF2_ITERATIONS = 65536;
 
