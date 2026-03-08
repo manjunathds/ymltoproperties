@@ -1,7 +1,9 @@
 package org.example.ymltoproperties;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,21 +21,37 @@ import java.util.Map;
 public class YamlToPropertiesController {
 
     private final Yaml yaml = new Yaml();
+    private final AesCryptoService aesCryptoService;
+
+    public YamlToPropertiesController(AesCryptoService aesCryptoService) {
+        this.aesCryptoService = aesCryptoService;
+    }
 
     @PostMapping(path = "/to-properties", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
-    public String convertYamlToProperties(@RequestBody String yamlContent) {
+    public ResponseEntity<String> convertYamlToProperties(@RequestBody String encryptedYamlContent) {
         try {
+            String yamlContent = aesCryptoService.decryptWithStaticKey(encryptedYamlContent);
             Object loaded = yaml.load(yamlContent);
 
-            if (loaded == null) {
-                return "";
+            String propertiesText = "";
+            if (loaded != null) {
+                Map<String, String> flattened = new LinkedHashMap<>();
+                flatten("", loaded, flattened);
+                propertiesText = render(flattened);
             }
 
-            Map<String, String> flattened = new LinkedHashMap<>();
-            flatten("", loaded, flattened);
-            return render(flattened);
+            AesCryptoService.DynamicEncryptedPayload payload = aesCryptoService.encryptWithDynamicKey(propertiesText);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("X-Response-Key", payload.responseKey());
+            headers.set("X-Response-Salt", payload.responseSalt());
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(payload.encryptedBody());
         } catch (Exception ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid YAML input", ex);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid encrypted payload or YAML input", ex);
         }
     }
 
