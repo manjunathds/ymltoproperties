@@ -55,10 +55,10 @@ async function encryptRequestWithStaticKey(plainText) {
 }
 
 async function deriveDynamicAesKey(responseKeyBase64, responseSaltBase64) {
-    const keyBytes = base64ToBytes(responseKeyBase64);
+    const pbkdf2PasswordBytes = new TextEncoder().encode(responseKeyBase64);
     const salt = base64ToBytes(responseSaltBase64);
 
-    const baseKey = await crypto.subtle.importKey("raw", keyBytes, "PBKDF2", false, ["deriveKey"]);
+    const baseKey = await crypto.subtle.importKey("raw", pbkdf2PasswordBytes, "PBKDF2", false, ["deriveKey"]);
     return crypto.subtle.deriveKey(
         {
             name: "PBKDF2",
