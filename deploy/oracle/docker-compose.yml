@@ -1,0 +1,36 @@
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    container_name: yml-to-properties
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      APP_SECURITY_REQUIRE_HTTPS: ${APP_SECURITY_REQUIRE_HTTPS:-true}
+      APP_SECURITY_RATE_LIMIT_MAX_REQUESTS: ${APP_SECURITY_RATE_LIMIT_MAX_REQUESTS:-30}
+      APP_SECURITY_RATE_LIMIT_WINDOW_SECONDS: ${APP_SECURITY_RATE_LIMIT_WINDOW_SECONDS:-60}
+      APP_CRYPTO_REQUEST_STATIC_KEY: ${APP_CRYPTO_REQUEST_STATIC_KEY:-YmlProp2026StaticKey9f3b7c1d5a2e8f4b}
+    expose:
+      - "8080"
+
+  caddy:
+    image: caddy:2
+    container_name: yml-to-properties-caddy
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
