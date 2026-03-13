@@ -169,7 +169,7 @@ async function convertYaml() {
         setStatus("Security/network error: " + error.message, "error");
     } finally {
         convertBtn.disabled = false;
-        convertBtn.textContent = "Convert";
+        convertBtn.textContent = "Convert Now";
     }
 }
 
